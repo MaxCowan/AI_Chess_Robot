@@ -1,2 +1,3 @@
 # AI_Chess_Robot
-Hack FSU Hackathon Project. Robotic Arm/Web Interface/Digital Imaging
+2017 Hack FSU Hackathon Project
+Digital Imaging/Web Interface
