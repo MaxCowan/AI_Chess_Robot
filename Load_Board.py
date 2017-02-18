@@ -2,6 +2,15 @@ from cv2 import *
 import cv2
 import numpy as np
 i=0
+
+letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+idealCoordsDict = {}
+for i in range(0,8):
+    for j in range(0,8):
+        keyName = letters[i]+str(j+1)
+        idealCoordsDict[keyName] = (175 + j*56, 419 - j*56)
+        
+        
 # initialize the camera
 cam = VideoCapture(1)   # 1 -> index of camera
 
@@ -31,6 +40,7 @@ for pt in zip(*loc[::-1]):
     i+=1
     if i==4:
         break;
+
 
 
 
