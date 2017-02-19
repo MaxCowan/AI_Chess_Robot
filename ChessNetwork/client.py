@@ -18,14 +18,22 @@ class client():
         return s
 
     def connectToGame(self, player):
+        print(player)
         s = self.connect()
         s.send(bytes("PLAYER CONNECT", "UTF-8"))
         data = s.recv(self.size).decode("UTF-8")
         if not data == "400":
             print("Client says:     Error connecting")
-        s.send(player.getJSON())
+        s.send(bytes(player.getJSON(), "UTF-8"))
         data = s.recv(self.size).decode("UTF-8")
         if data == "400":
             return True
         else:
             return False
+
+    def pressButton(self):
+        s = self.connect()
+        s.send(bytes("BUTTON"))
+        if not s.recv(self.size).decode("UTF-8") == "400":
+            print("ERROROROEOROORORO")
+        s.close()

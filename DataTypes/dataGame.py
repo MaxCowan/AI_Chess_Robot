@@ -1,4 +1,4 @@
-from DataTypes import Board
+from DataTypes.dataBoard import Board
 from ChessNetwork import server
 from ChessNetwork import client
 import queue
@@ -37,4 +37,4 @@ class Game():
 
     def connectToServer(self, player):
         self.client = client()
-        self.connected = client.connectToGame(player)
+        self.connected = self.client.connectToGame(player)

@@ -6,6 +6,7 @@ from ChessNetwork import client
 from DataTypes import Player
 
 class Start(Frame):
+    serverType = None
     def createWidgets(self):
         self.Start = Button(self)
         self.Start["text"] = "Start"
@@ -15,17 +16,19 @@ class Start(Frame):
         self.Start["command"] =  self.onclose
         self.Start.pack()
 
-    def __init__(self, master=None, type = "Black"):
+    def __init__(self, master, serverType):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
+        self.serverType = serverType
+        print(self.serverType)
         self.pack()
         self.createWidgets()
-        self.type = type
+
     def onclose(self):
         self.destroy()
-        SignIn(self.master)
+        SignIn(self.master, self.serverType)
 
 class SignIn(Frame):
 
@@ -47,33 +50,38 @@ class SignIn(Frame):
         self.btnSignIn["command"] =  self.signedIn
         self.btnSignIn.pack()
 
-    def __init__(self, master=None, type = "black", player = ""):
+    def __init__(self, master=None, serverType = "black", player = ""):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
+
+        self.serverType = serverType
+        self.player = player
         self.pack()
         self.createWidgets()
-        self.type = type
+
 
     def onclose(self, player):
         self.destroy()
-        Options(self.master, player)
+        print(self.serverType)
+        Options(self.master, player=player, serverType=self.serverType)
 
     def signedIn(self):
         self.destroy()
-        SignInOptions(self.master)
+        SignInOptions(self.master, self.serverType)
 
 class SignInOptions(Frame):
 
-    def __init__(self, master=None, type = "black"):
+    def __init__(self, master=None, serverType = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
+        self.serverType = serverType
         self.pack()
         self.createWidgets()
-        self.type = type
+
 
     def createWidgets(self):
 
@@ -100,7 +108,7 @@ class SignInOptions(Frame):
 
     def onclose(self):
         self.destroy()
-        Options(self.master)
+        Options(self.master, self.serverType)
 
 class Options(Frame):
 
@@ -140,41 +148,47 @@ class Options(Frame):
 
     def StartGame(self, AI = True):
 
-        game =  Game()
+        game = Game()
         if self.vartime.get() != "Timings":
 
             if AI == False:
                 self.destroy()
-                Waiting(self.master)
+                print(self.serverType)
+                Waiting(self.master, serverType=self.serverType, player=self.player, time=self.vartime.get())
 
             else:
                 self.destroy()
-                Clock(self.master, self.vartime.get(), game)
 
-    def __init__(self, master=None, type = "black", player = ""):
+                Clock(self.master, self.vartime.get(), game, serverType=self.serverType)
+
+    def __init__(self, master=None, serverType = "black", player = ""):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
+        self.serverType = serverType
+        self.player = player
         self.pack()
         self.createWidgets()
-        self.type = type
+
 
     def onclose(self):
         self.destroy()
-        SignIn(self.master, self.vartime.get(), self.type, player)
+        SignIn(self.master, self.vartime.get(), self.serverType, self.player)
 
 class Waiting(Frame):
 
-    def __init__(self, master=None, time=0,  type = "black"):
+    def __init__(self, master=None, time=0,  serverType="black", player=""):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
+        self.serverType = serverType
+        self.time = time
+        self.player = player
         self.pack()
         self.createWidgets()
-        self.type = type
-        self.time = time
+
 
     def createWidgets(self):
 
@@ -182,7 +196,7 @@ class Waiting(Frame):
         self.wait["text"] = "Waiting for other user"
         self.wait.pack()
 
-        if self.type == "white":
+        if self.serverType == "white":
             self.white()
         else:
             self.black()
@@ -204,8 +218,9 @@ class Waiting(Frame):
     def black(self):
 
         self.game = Game()
-        self.game.connectToServer()
-        self.blackClient(self.game)
+
+        self.game.connectToServer(self.player)
+        self.blackClient()
 
     def blackClient(self):
 
@@ -219,14 +234,14 @@ class Waiting(Frame):
 
 class Stats(Frame):
 
-    def __init__(self, master=None, type = "black"):
+    def __init__(self, master=None, serverType = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
-        self.type = type
+        self.serverType = serverType
 
     def createWidgets(self):
 
@@ -271,9 +286,11 @@ class Clock(Frame):
         self.TimeLeft["textvar"] = self.strTime
         self.TimeLeft["font"] = "Times New Roman", 100
         self.TimeLeft.pack()
+        if self.serverType == "white":
+            self.TimeLeft["state"] = DISABLED
 
 
-    def __init__(self, master=None, timing="5:00", game = "", type = "black"):
+    def __init__(self, master=None, timing="5:00", game = "", serverType = "black"):
 
         self.game = game
 
@@ -282,7 +299,7 @@ class Clock(Frame):
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.timerRunning = False
-        self.type = type
+        self.serverType = serverType
 
         self.intTime = 0
         self.Delay = 0
@@ -315,8 +332,10 @@ class Clock(Frame):
 
 
     def buttonPressed(self):
-        self.timerRunning = True
+        self.timerRunning = False
         time.sleep(self.delay)
+        client().pressButton()
+        self.TimeLeft["state"] = "Normal"
         self.after(100, self.timeHandler)
 
     def timeHandler(self):
@@ -331,7 +350,3 @@ class Clock(Frame):
                 self.TimeOne = self.TimeTwo
             self.after(100, self.timeHandler)
 
-root = Tk()
-app = Start(master=root)
-app.mainloop()
-root.destroy()

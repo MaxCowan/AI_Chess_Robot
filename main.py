@@ -1,11 +1,11 @@
-import GUI
+from GUI import Start
 import tkinter as tk
 
 servertype = "white"
 
 master = tk.Tk()
 
-GUI.Start(master, servertype)
+Start(master, "white")
 master.mainloop()
 master.destroy()
 
