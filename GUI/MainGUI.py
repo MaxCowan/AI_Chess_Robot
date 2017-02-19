@@ -3,6 +3,7 @@ import datetime
 import time
 from DataTypes import Game
 from ChessNetwork import client
+from DataTypes import Player
 
 class Start(Frame):
     def createWidgets(self):
@@ -34,7 +35,7 @@ class SignIn(Frame):
         self.Guest["fg"]   = "black"
         self.Guest["width"] = 30
         self.Guest["font"] = ("Times New Roman", 62)
-        self.Guest["command"] =  self.onclose
+        self.Guest["command"] =  lambda: self.onclose(Player("Guest"))
         self.Guest.pack()
 
 
@@ -46,7 +47,7 @@ class SignIn(Frame):
         self.btnSignIn["command"] =  self.signedIn
         self.btnSignIn.pack()
 
-    def __init__(self, master=None, type = "black"):
+    def __init__(self, master=None, type = "black", player = ""):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
@@ -55,9 +56,9 @@ class SignIn(Frame):
         self.createWidgets()
         self.type = type
 
-    def onclose(self):
+    def onclose(self, player):
         self.destroy()
-        Options(self.master)
+        Options(self.master, player)
 
     def signedIn(self):
         self.destroy()
@@ -150,7 +151,7 @@ class Options(Frame):
                 self.destroy()
                 Clock(self.master, self.vartime.get(), game)
 
-    def __init__(self, master=None, type = "black"):
+    def __init__(self, master=None, type = "black", player = ""):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
@@ -161,7 +162,7 @@ class Options(Frame):
 
     def onclose(self):
         self.destroy()
-        SignIn(self.master, self.vartime.get(), self.type)
+        SignIn(self.master, self.vartime.get(), self.type, player)
 
 class Waiting(Frame):
 
@@ -211,6 +212,8 @@ class Waiting(Frame):
         if self.game.connected == True:
             self.destroy()
             Clock(self.master, game = self.game, timing=self.time)
+        else:
+            self.game.connectToServer(self.player)
         self.after(100, lambda: self.blackClient())
 
 
