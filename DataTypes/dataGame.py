@@ -1,4 +1,4 @@
-from DataTypes import Board
+from DataTypes.dataBoard import Board
 
 class Game():
     def __init__(self):
