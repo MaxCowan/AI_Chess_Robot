@@ -21,7 +21,7 @@ class Start(Frame):
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
-
+        self.type = type
     def onclose(self):
         self.destroy()
         SignIn(self.master)
@@ -46,13 +46,14 @@ class SignIn(Frame):
         self.btnSignIn["command"] =  self.signedIn
         self.btnSignIn.pack()
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def onclose(self):
         self.destroy()
@@ -64,14 +65,14 @@ class SignIn(Frame):
 
 class SignInOptions(Frame):
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
-
+        self.type = type
 
     def createWidgets(self):
 
@@ -149,13 +150,14 @@ class Options(Frame):
                 self.destroy()
                 Clock(self.master, self.vartime.get(), game)
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def onclose(self):
         self.destroy()
@@ -163,13 +165,14 @@ class Options(Frame):
 
 class Waiting(Frame):
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def createWidgets(self):
 
@@ -177,15 +180,38 @@ class Waiting(Frame):
         self.wait["text"] = "Waiting for other user"
         self.wait.pack()
 
+        if self.type == "white":
+            self.white()
+        else:
+            self.black()
+
+    def white(self):
+
+        self.game = Game()
+        self.game.startServer()
+        self.ServerUpdate(self.game)
+
+    def ServerUpdate(self, game):
+
+        if self.game.connected == True:
+            self.destroy()
+            Clock(self.master, self.game)
+        self.game.handleServer()
+        self.after(100, lambda: self.ServerUpdate(self.game))
+
+    def black(self):
+        pass
+
 class Stats(Frame):
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def createWidgets(self):
 
@@ -232,7 +258,7 @@ class Clock(Frame):
         self.TimeLeft.pack()
 
 
-    def __init__(self, master=None, timing="5:00", game = ""):
+    def __init__(self, master=None, timing="5:00", game = "", type = "black"):
 
         self.game = game
 
@@ -241,6 +267,7 @@ class Clock(Frame):
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.timerRunning = False
+        self.type = type
 
         self.intTime = 0
         self.Delay = 0
