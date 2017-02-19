@@ -2,12 +2,19 @@ import os
 import chess.uci
 import chess
 from chess import Move
+import platform
 
 
 class ChessEngine:
+    print(platform.system())
     moveList = ""
     script_dir = os.path.dirname(__file__)
-    rel_path = "stockfish"
+    if platform.system() == "Windows":
+        rel_path = "stockfish_8_x64.exe"
+    elif platform.system() == "Darwin":
+        rel_path = "stockfish"
+    else:
+        print("WTF are you using?")
     abs_file_path = os.path.join(script_dir, rel_path)
     defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     currentFEN = ""
