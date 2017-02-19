@@ -13,7 +13,7 @@ class Start(Frame):
         self.Start["command"] =  self.onclose
         self.Start.pack()
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "Black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
