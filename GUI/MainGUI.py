@@ -1,6 +1,8 @@
 from tkinter import *
 import datetime
 import time
+from DataTypes import Game
+from ChessNetwork import client
 
 class Start(Frame):
     def createWidgets(self):
@@ -19,7 +21,7 @@ class Start(Frame):
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
-
+        self.type = type
     def onclose(self):
         self.destroy()
         SignIn(self.master)
@@ -44,13 +46,14 @@ class SignIn(Frame):
         self.btnSignIn["command"] =  self.signedIn
         self.btnSignIn.pack()
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def onclose(self):
         self.destroy()
@@ -62,19 +65,19 @@ class SignIn(Frame):
 
 class SignInOptions(Frame):
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
-
+        self.type = type
 
     def createWidgets(self):
 
         self.Welcome = Label(self)
-        self.Welcome["text"] = "Welcome " #TODO +USER
+        self.Welcome["text"] = "Welcome " #TODO + USER
         self.Welcome["font"] = "Times New Roman", 20
         self.Welcome.pack()
 
@@ -115,19 +118,13 @@ class Options(Frame):
         self.PlayAI["text"] = ("  Play against an AI ")
         self.PlayAI.grid(row = 0, column = 1)
         self.PlayAI["font"] = ("Times New Roman", 20)
-        self.PlayAI["command"] = self.StartGame
-
-        self.PlayGuest = Button(self)
-        self.PlayGuest["text"] = ("Play against a Guest")
-        self.PlayGuest.grid(row = 1, column = 1)
-        self.PlayGuest["font"] = ("Times New Roman", 20)
-        self.PlayGuest["command"] = self.StartGame
+        self.PlayAI["command"] = lambda: self.StartGame(True)
 
         self.PlayUser = Button(self)
-        self.PlayUser["text"] = ("Play against an User")
+        self.PlayUser["text"] = ("Play against a user")
         self.PlayUser.grid(row = 2, column = 1)
         self.PlayUser["font"] = ("Times New Roman", 20)
-        self.PlayUser["command"] = self.StartGame
+        self.PlayUser["command"] = lambda: self.StartGame(False)
 
         self.Cancel = Button(self)
         self.Cancel["text"] = ("Logout")
@@ -140,32 +137,93 @@ class Options(Frame):
         self.destroy()
         Start(self.master)
 
-    def StartGame(self):
-        if self.vartime.get() != "Timings":
-            self.destroy()
-            Clock(self.master, self.vartime.get())
+    def StartGame(self, AI = True):
 
-    def __init__(self, master=None):
+        game =  Game()
+        if self.vartime.get() != "Timings":
+
+            if AI == False:
+                self.destroy()
+                Waiting(self.master)
+
+            else:
+                self.destroy()
+                Clock(self.master, self.vartime.get(), game)
+
+    def __init__(self, master=None, type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
 
     def onclose(self):
         self.destroy()
-        SignIn(self.master, self.vartime.get())
+        SignIn(self.master, self.vartime.get(), self.type)
 
-class Stats(Frame):
+class Waiting(Frame):
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, time=0,  type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.pack()
         self.createWidgets()
+        self.type = type
+        self.time = time
+
+    def createWidgets(self):
+
+        self.wait = Label(self)
+        self.wait["text"] = "Waiting for other user"
+        self.wait.pack()
+
+        if self.type == "white":
+            self.white()
+        else:
+            self.black()
+
+    def white(self):
+
+        self.game = Game()
+        self.game.startServer()
+        self.ServerUpdate()
+
+    def ServerUpdate(self):
+
+        if self.game.connected == True:
+            self.destroy()
+            Clock(self.master, game = self.game, timing=self.time)
+        self.game.handleServer()
+        self.after(100, lambda: self.ServerUpdate())
+
+    def black(self):
+
+        self.game = Game()
+        self.game.connectToServer()
+        self.blackClient(self.game)
+
+    def blackClient(self):
+
+        if self.game.connected == True:
+            self.destroy()
+            Clock(self.master, game = self.game, timing=self.time)
+        self.after(100, lambda: self.blackClient())
+
+
+class Stats(Frame):
+
+    def __init__(self, master=None, type = "black"):
+        Frame.__init__(self, master)
+        self.master = master
+        master.minsize(width=480, height=320)
+        master.maxsize(width=480, height=320)
+        self.pack()
+        self.createWidgets()
+        self.type = type
 
     def createWidgets(self):
 
@@ -212,12 +270,16 @@ class Clock(Frame):
         self.TimeLeft.pack()
 
 
-    def __init__(self, master=None, timing="5:00"):
+    def __init__(self, master=None, timing="5:00", game = "", type = "black"):
+
+        self.game = game
+
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
         master.maxsize(width=480, height=320)
         self.timerRunning = False
+        self.type = type
 
         self.intTime = 0
         self.Delay = 0
