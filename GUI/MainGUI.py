@@ -258,7 +258,7 @@ class Clock(Frame):
     def timeHandler(self):
         if self.timerRunning:
             self.TimeTwo = datetime.datetime.now()
-            print((self.TimeTwo-self.TimeOne).seconds)
+            #print((self.TimeTwo-self.TimeOne).seconds)
             if (self.TimeTwo-self.TimeOne).seconds >= 1:
                 self.intTime -= 1
                 # print(self.intTime)
