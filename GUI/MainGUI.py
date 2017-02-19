@@ -73,15 +73,27 @@ class SignInOptions(Frame):
 
 
     def createWidgets(self):
+
+        self.Welcome = Label(self)
+        self.Welcome["text"] = "Welcome " #TODO +USER
+        self.Welcome["font"] = "Times New Roman", 20
+        self.Welcome.pack()
+
         self.Stats = Button(self)
-        self.Stats["text"] = "Your Stats"
-        #self.Stats["command"] =
+        self.Stats["text"] = "Your Stats  "
+        self.Stats["font"] = "Times New Roman", 30
+        self.Stats["command"] = lambda: self.StatsPage()
         self.Stats.pack()
 
         self.Play = Button(self)
         self.Play["text"] = "Play a game"
+        self.Play["font"] = "Times New Roman", 30
         self.Play["command"] = self.onclose
         self.Play.pack()
+
+    def StatsPage(self):
+        self.destroy()
+        Stats(self.master)
 
     def onclose(self):
         self.destroy()
@@ -145,6 +157,44 @@ class Options(Frame):
     def onclose(self):
         self.destroy()
         SignIn(self.master, self.vartime.get())
+
+class Stats(Frame):
+
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        master.minsize(width=480, height=320)
+        master.maxsize(width=480, height=320)
+        self.pack()
+        self.createWidgets()
+
+    def createWidgets(self):
+
+        self.Wins = Label(self)
+        self.Wins["text"] = "Insert stats"
+        self.Wins["font"] = "Times New Roman", 40
+        self.Wins.pack()
+
+        self.Losses = Label(self)
+        self.Losses["text"] = "Insert stats"
+        self.Losses["font"] = "Times New Roman", 40
+        self.Losses.pack()
+
+        self.Smate = Label(self)
+        self.Smate["text"] = "Insert stats"
+        self.Smate["font"] = "Times New Roman", 40
+        self.Smate.pack()
+
+        self.Cancel = Button(self)
+        self.Cancel["text"] = ("Cancel")
+        self.Cancel["fg"] = ("red")
+        self.Cancel["font"] = ("Times New Roman", 15)
+        self.Cancel.pack()
+        self.Cancel["command"] = self.onclose
+
+    def onclose(self):
+        self.destroy()
+        SignInOptions(self.master)
 
 class Clock(Frame):
 
