@@ -2,6 +2,7 @@ from tkinter import *
 import datetime
 import time
 from DataTypes import Game
+from ChessNetwork import client
 
 class Start(Frame):
 
@@ -161,11 +162,11 @@ class Options(Frame):
 
     def onclose(self):
         self.destroy()
-        SignIn(self.master, self.vartime.get())
+        SignIn(self.master, self.vartime.get(), self.type)
 
 class Waiting(Frame):
 
-    def __init__(self, master=None, type = "black"):
+    def __init__(self, master=None, time=0,  type = "black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
@@ -173,6 +174,7 @@ class Waiting(Frame):
         self.pack()
         self.createWidgets()
         self.type = type
+        self.time = time
 
     def createWidgets(self):
 
@@ -189,18 +191,29 @@ class Waiting(Frame):
 
         self.game = Game()
         self.game.startServer()
-        self.ServerUpdate(self.game)
+        self.ServerUpdate()
 
-    def ServerUpdate(self, game):
+    def ServerUpdate(self):
 
         if self.game.connected == True:
             self.destroy()
-            Clock(self.master, self.game)
+            Clock(self.master, game = self.game, timing=self.time)
         self.game.handleServer()
-        self.after(100, lambda: self.ServerUpdate(self.game))
+        self.after(100, lambda: self.ServerUpdate())
 
     def black(self):
-        pass
+
+        self.game = Game()
+        self.game.connectToServer()
+        self.blackClient(self.game)
+
+    def blackClient(self):
+
+        if self.game.connected == True:
+            self.destroy()
+            Clock(self.master, game = self.game, timing=self.time)
+        self.after(100, lambda: self.blackClient())
+
 
 class Stats(Frame):
 
