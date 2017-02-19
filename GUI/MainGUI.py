@@ -1,6 +1,7 @@
 from tkinter import *
 import datetime
 import time
+from DataTypes import Game
 
 class Start(Frame):
 
@@ -13,7 +14,7 @@ class Start(Frame):
         self.Start["command"] =  self.onclose
         self.Start.pack()
 
-    def __init__(self, master=None):
+    def __init__(self, master=None, type = "Black"):
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
@@ -75,7 +76,7 @@ class SignInOptions(Frame):
     def createWidgets(self):
 
         self.Welcome = Label(self)
-        self.Welcome["text"] = "Welcome " #TODO +USER
+        self.Welcome["text"] = "Welcome " #TODO + USER
         self.Welcome["font"] = "Times New Roman", 20
         self.Welcome.pack()
 
@@ -116,19 +117,13 @@ class Options(Frame):
         self.PlayAI["text"] = ("  Play against an AI ")
         self.PlayAI.grid(row = 0, column = 1)
         self.PlayAI["font"] = ("Times New Roman", 20)
-        self.PlayAI["command"] = self.StartGame
-
-        self.PlayGuest = Button(self)
-        self.PlayGuest["text"] = ("Play against a Guest")
-        self.PlayGuest.grid(row = 1, column = 1)
-        self.PlayGuest["font"] = ("Times New Roman", 20)
-        self.PlayGuest["command"] = self.StartGame
+        self.PlayAI["command"] = lambda: self.StartGame(True)
 
         self.PlayUser = Button(self)
-        self.PlayUser["text"] = ("Play against an User")
+        self.PlayUser["text"] = ("Play against a user")
         self.PlayUser.grid(row = 2, column = 1)
         self.PlayUser["font"] = ("Times New Roman", 20)
-        self.PlayUser["command"] = self.StartGame
+        self.PlayUser["command"] = lambda: self.StartGame(False)
 
         self.Cancel = Button(self)
         self.Cancel["text"] = ("Logout")
@@ -141,10 +136,18 @@ class Options(Frame):
         self.destroy()
         Start(self.master)
 
-    def StartGame(self):
+    def StartGame(self, AI = True):
+
+        game =  Game()
         if self.vartime.get() != "Timings":
-            self.destroy()
-            Clock(self.master, self.vartime.get())
+
+            if AI == False:
+                self.destroy()
+                Waiting(self.master)
+
+            else:
+                self.destroy()
+                Clock(self.master, self.vartime.get(), game)
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -157,6 +160,22 @@ class Options(Frame):
     def onclose(self):
         self.destroy()
         SignIn(self.master, self.vartime.get())
+
+class Waiting(Frame):
+
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+        master.minsize(width=480, height=320)
+        master.maxsize(width=480, height=320)
+        self.pack()
+        self.createWidgets()
+
+    def createWidgets(self):
+
+        self.wait = Label(self)
+        self.wait["text"] = "Waiting for other user"
+        self.wait.pack()
 
 class Stats(Frame):
 
@@ -213,7 +232,10 @@ class Clock(Frame):
         self.TimeLeft.pack()
 
 
-    def __init__(self, master=None, timing="5:00"):
+    def __init__(self, master=None, timing="5:00", game = ""):
+
+        self.game = game
+
         Frame.__init__(self, master)
         self.master = master
         master.minsize(width=480, height=320)
@@ -258,7 +280,7 @@ class Clock(Frame):
     def timeHandler(self):
         if self.timerRunning:
             self.TimeTwo = datetime.datetime.now()
-            print((self.TimeTwo-self.TimeOne).seconds)
+            #print((self.TimeTwo-self.TimeOne).seconds)
             if (self.TimeTwo-self.TimeOne).seconds >= 1:
                 self.intTime -= 1
                 # print(self.intTime)
