@@ -1,2 +1,3 @@
-from DataTypes.dataGame import game
-from DataTypes.dataBoard import board
+from DataTypes.dataGame import Game
+from DataTypes.dataBoard import Board
+from DataTypes.dataPlayer import Player
