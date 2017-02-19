@@ -3,7 +3,6 @@ import datetime
 import time
 
 class Start(Frame):
-
     def createWidgets(self):
         self.Start = Button(self)
         self.Start["text"] = "Start"

@@ -1,1 +1,1 @@
-import GUI.MainGUI as MainGUI
+from GUI.MainGUI import *

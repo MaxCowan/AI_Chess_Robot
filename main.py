@@ -1,4 +1,11 @@
-import ChessNetwork as CH
+import GUI
+import tkinter as tk
 
-c = CH.client()
-s = CH.server()
+servertype = "white"
+
+master = tk.Tk()
+
+GUI.Start(master, servertype)
+master.mainloop()
+master.destroy()
+

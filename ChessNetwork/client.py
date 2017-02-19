@@ -6,6 +6,7 @@ class client():
         self.size = bytesize
         self.port = port
 
+    def connect(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(5)
         s.connect((self.ip, self.port))
@@ -14,65 +15,17 @@ class client():
         data = s.recv(self.size).decode("UTF-8")
         if not data == "400":
             raise Exception("Client says:     Failed to receive proper response from server")
+        return s
 
-
-class server(threading.Thread):
-    def __init__(self, eventQueue, statusQueue, parent, ip="localhost", port=9001):
-            threading.Thread.__init__(self)
-            self.daemon = True
-            self.parent = parent
-            self.queueStatus = statusQueue
-            self.queueEvent = eventQueue
-            self.port = port
-            self.ip = ip
-
-    def run(self):
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(socket.gethostname())
-        serversocket.bind((self.ip, self.port))
-        serversocket.listen(10)
-        while 1:
-            client, address = serversocket.accept()
-            client.settimeout(30)
-            t = threading.Thread(target=self.dealWithClient, args=(client, address))
-            t.daemon = True
-            t.start()
-
-    def dealWithClient(self, client, address):
-        self.size = 1024
-        while 1:
-            try:
-                data = client.recv(self.size).decode("UTF-8")
-                print("server says:     SERVER RECIEVED:         ", data)
-                if data:
-                    if data == "CONNECT":
-                        client.send(bytes("400", "UTF-8"))
-                        self.handleRespond(client)
-                    else:
-                        client.send(bytes("ERROR INVALID COMMAND", "UTF-8"))
-                        raise Exception("Server says:     Invalid command sent")
-            except Exception as e:
-                print(e)
-
-    def handleRespond(self, client):
-        data = client.recv(self.size).decode("UTF-8")
-        try:
-            if data:
-                if data == "SEND GAME":
-                    client.send(bytes("400", "UTF-8"))
-                    self.recieveGame(client)
-                elif data == "GET STATS":
-                    client.send(bytes("400", "UTF-8"))
-                    self.sendStats(client)
-            else:
-                raise Exception("Server says:     No response")
-        except Exception as e:
-            print(e)
-
-    def recieveGame(self, client):
-        data = client.recv(self.size).decode("UTF-8")
-        tempGame = pickle.load(data)
-
-    def sendStats(self, client):
-        data = client.recv(self.size).decode("UTF-8")
-
+    def connectToGame(self, player):
+        s = self.connect()
+        s.send(bytes("PLAYER CONNECT", "UTF-8"))
+        data = s.recv(self.size).decode("UTF-8")
+        if not data == "400":
+            print("Client says:     Error connecting")
+        s.send(player.getJSON())
+        data = s.recv(self.size).decode("UTF-8")
+        if data == "400":
+            return True
+        else:
+            return False
